@@ -14,7 +14,7 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/hei_intrabuddy | /help")
 
 
 async def send_message(message, user_message):
@@ -97,18 +97,24 @@ def run_discord_bot():
         await client.tree.sync()
         logger.info(f'{client.user} is now running!')
 
-    @client.tree.command(name="chat", description="Have a chat with ChatGPT")
+    @client.tree.command(name="hei_intrabuddy", description="Have a chat with intrabuddy")
     async def chat(interaction: discord.Interaction, *, message: str):
         if interaction.user == client.user:
             return
         username = str(interaction.user)
         user_message = message
         channel = str(interaction.channel)
+        bot_channel = str(client.get_channel(int(config['discord_channel_id'])))
+        print("this is the current channel", channel)
+        print("this is the ai channel", bot_channel)
         logger.info(
             f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
-        await send_message(interaction, user_message)
+        if channel == bot_channel:
+            await send_message(interaction, user_message)
+        else:
+            logger.info("You can't send a message here! go to general to talk with intrabuddy!")
 
-    @client.tree.command(name="private", description="Toggle private access")
+    @client.tree.command(name="private", description="make the chat Private")
     async def private(interaction: discord.Interaction):
         global isPrivate
         await interaction.response.defer(ephemeral=False)
@@ -120,7 +126,7 @@ def run_discord_bot():
             logger.info("You already on private mode!")
             await interaction.followup.send("> **Warn: You already on private mode. If you want to switch to public mode, use `/public`**")
 
-    @client.tree.command(name="public", description="Toggle public access")
+    @client.tree.command(name="public", description="make the chat Public")
     async def public(interaction: discord.Interaction):
         global isPrivate
         await interaction.response.defer(ephemeral=False)
@@ -132,10 +138,10 @@ def run_discord_bot():
             await interaction.followup.send("> **Warn: You already on public mode. If you want to switch to private mode, use `/private`**")
             logger.info("You already on public mode!")
 
-    @client.tree.command(name="help", description="Show help for the bot")
+    @client.tree.command(name="help", description="Show help for intrabuddy")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(":star:**BASIC COMMANDS** \n    `/chat [message]` Chat with ChatGPT!\n    `/public` ChatGPT switch to public mode \n    For complete documentation, please visit https://github.com/Zero6992/chatGPT-discord-bot")
+        await interaction.followup.send(":star:**BASIC COMMANDS** \n    `/intrabuddy [your_message]` to chat with intrabuddy!\n  `/private` to make the chat private \n  `/public` to make the chat public \n   For complete documentation, please visit https://github.com/studentofcoding/chatGPT-discord-bot")
         logger.info(
             "\x1b[31mSomeone need help!\x1b[0m")
 
